@@ -4,10 +4,10 @@ module Fastlane
   UI = FastlaneCore::UI unless Fastlane.const_defined?(:UI)
 
   module Helper
-    class GooglePlayTrackUpdaterHelper
-      # class methods that you define here become available in your action
-      # as `Helper::GooglePlayTrackUpdaterHelper.your_method`
-      
-    end
+    # class GooglePlayTrackUpdaterHelper
+    # class methods that you define here become available in your action
+    # as `Helper::GooglePlayTrackUpdaterHelper.your_method`
+
+    # end
   end
 end

@@ -25,4 +25,3 @@ lane :update_rollout do
     json_file_path: "path/to/service-account.json"
   )
 end
-
