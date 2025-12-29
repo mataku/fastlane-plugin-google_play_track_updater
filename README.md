@@ -24,6 +24,16 @@ A fastlane plugin for managing Google Play release tracks. This plugin provides 
 - **`resume_google_play_release`** - Resumes a halted release
 - **`update_google_play_release_rollout`** - Updates the rollout percentage for a staged rollout
 
+## Motivation
+
+While [supply](https://docs.fastlane.tools/actions/supply/) can also change release statuses, it requires many configuration parameters which can lead to unintended side effects. This plugin provides dedicated actions for each specific operation, making release management more explicit and manageable.
+
+By using focused actions like `halt_google_play_release`, `resume_google_play_release`, and `update_google_play_release_rollout`, you can:
+
+- Clearly express your intent in your Fastfile
+- Reduce the risk of accidentally modifying other release properties
+- Simplify your CI/CD pipelines with purpose-built commands
+
 ## Actions
 
 ### halt_google_play_release
