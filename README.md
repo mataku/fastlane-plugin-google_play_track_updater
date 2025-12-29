@@ -51,13 +51,13 @@ halt_google_play_release(
 
 **Parameters:**
 
-| Key | Description | Required | Type |
-|-----|-------------|----------|------|
-| `package_name` | The package name of the application (e.g., 'com.example.app') | Yes | String |
-| `track` | The track of the application (production, beta, alpha, internal) | Yes | String |
-| `version_name` | The version name to halt (e.g., '1.0.0') | Yes | String |
-| `json_file_path` | Path to a file containing service account or external account JSON | No* | String |
-| `json_key_data` | Service account or external account JSON data as a string | No* | String |
+| Key | Environment Variable | Description | Required | Type |
+|-----|---------------------|-------------|----------|------|
+| `package_name` | `HALT_GOOGLE_PLAY_RELEASE_PACKAGE_NAME` | The package name of the application (e.g., 'com.example.app') | Yes | String |
+| `track` | `HALT_GOOGLE_PLAY_RELEASE_TRACK` | The track of the application (production, beta, alpha, internal) | Yes | String |
+| `version_name` | `HALT_GOOGLE_PLAY_RELEASE_VERSION_NAME` | The version name to halt (e.g., '1.0.0') | Yes | String |
+| `json_file_path` | `HALT_GOOGLE_PLAY_RELEASE_JSON_FILE_PATH` | Path to a file containing service account or external account JSON | No* | String |
+| `json_key_data` | `HALT_GOOGLE_PLAY_RELEASE_JSON_KEY_DATA` | Service account or external account JSON data as a string | No* | String |
 
 \* Either `json_file_path` or `json_key_data` must be provided
 
@@ -76,13 +76,13 @@ resume_google_play_release(
 
 **Parameters:**
 
-| Key | Description | Required | Type |
-|-----|-------------|----------|------|
-| `package_name` | The package name of the application (e.g., 'com.example.app') | Yes | String |
-| `track` | The track of the application (production, beta, alpha, internal) | Yes | String |
-| `version_name` | The version name to resume (e.g., '1.0.0') | Yes | String |
-| `json_file_path` | Path to a file containing service account or external account JSON | No* | String |
-| `json_key_data` | Service account or external account JSON data as a string | No* | String |
+| Key | Environment Variable | Description | Required | Type |
+|-----|---------------------|-------------|----------|------|
+| `package_name` | `RESUME_GOOGLE_PLAY_RELEASE_PACKAGE_NAME` | The package name of the application (e.g., 'com.example.app') | Yes | String |
+| `track` | `RESUME_GOOGLE_PLAY_RELEASE_TRACK` | The track of the application (production, beta, alpha, internal) | Yes | String |
+| `version_name` | `RESUME_GOOGLE_PLAY_RELEASE_VERSION_NAME` | The version name to resume (e.g., '1.0.0') | Yes | String |
+| `json_file_path` | `RESUME_GOOGLE_PLAY_RELEASE_JSON_FILE_PATH` | Path to a file containing service account or external account JSON | No* | String |
+| `json_key_data` | `RESUME_GOOGLE_PLAY_RELEASE_JSON_KEY_DATA` | Service account or external account JSON data as a string | No* | String |
 
 \* Either `json_file_path` or `json_key_data` must be provided
 
@@ -102,14 +102,14 @@ update_google_play_release_rollout(
 
 **Parameters:**
 
-| Key | Description | Required | Type |
-|-----|-------------|----------|------|
-| `package_name` | The package name of the application (e.g., 'com.example.app') | Yes | String |
-| `track` | The track of the application (production, beta, alpha, internal) | Yes | String |
-| `version_name` | The version name to update (e.g., '1.0.0') | Yes | String |
-| `user_fraction` | The rollout percentage as a fraction (0.0 to 1.0, exclusive). e.g., 0.1 for 10% rollout | Yes | Float |
-| `json_file_path` | Path to a file containing service account or external account JSON | No* | String |
-| `json_key_data` | Service account or external account JSON data as a string | No* | String |
+| Key | Environment Variable | Description | Required | Type |
+|-----|---------------------|-------------|----------|------|
+| `package_name` | `UPDATE_GOOGLE_PLAY_RELEASE_ROLLOUT_PACKAGE_NAME` | The package name of the application (e.g., 'com.example.app') | Yes | String |
+| `track` | `UPDATE_GOOGLE_PLAY_RELEASE_ROLLOUT_TRACK` | The track of the application (production, beta, alpha, internal) | Yes | String |
+| `version_name` | `UPDATE_GOOGLE_PLAY_RELEASE_ROLLOUT_VERSION_NAME` | The version name to update (e.g., '1.0.0') | Yes | String |
+| `user_fraction` | `UPDATE_GOOGLE_PLAY_RELEASE_ROLLOUT_USER_FRACTION` | The rollout percentage as a fraction (0.0 to 1.0, exclusive). e.g., 0.1 for 10% rollout | Yes | Float |
+| `json_file_path` | `UPDATE_GOOGLE_PLAY_RELEASE_ROLLOUT_JSON_FILE_PATH` | Path to a file containing service account or external account JSON | No* | String |
+| `json_key_data` | `UPDATE_GOOGLE_PLAY_RELEASE_ROLLOUT_JSON_KEY_DATA` | Service account or external account JSON data as a string | No* | String |
 
 \* Either `json_file_path` or `json_key_data` must be provided
 
@@ -144,6 +144,67 @@ lane :update_rollout do
     user_fraction: 0.5,
     json_file_path: "path/to/service-account.json"
   )
+end
+```
+
+### Using with GitHub Actions and Workload Identity Provider
+
+Since fastlane 2.230.0, you can use Workload Identity Provider for keyless authentication with Google Cloud. Here's an example workflow:
+
+```yaml
+name: Halt Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      version_name:
+        description: 'Version name to halt (e.g., 1.0.0)'
+        required: true
+        type: string
+
+jobs:
+  halt_release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.4'
+          bundler-cache: true
+
+      - id: auth
+        uses: google-github-actions/auth@v3
+        with:
+          create_credentials_file: true
+          workload_identity_provider: ${{ secrets.WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ secrets.GOOGLE_SERVICE_ACCOUNT }}
+
+      - name: Halt release
+        env:
+          # You can also inject required params via HALT_GOOGLE_PLAY_RELEASE_{PACKAGE_NAME,TRACK.VERSION_NAME,JSON_FILE_PATH}
+          HALT_GOOGLE_PLAY_RELEASE_PACKAGE_NAME: com.example.app
+          HALT_GOOGLE_PLAY_RELEASE_TRACK: production
+          HALT_GOOGLE_PLAY_RELEASE_VERSION_NAME: ${{ inputs.version_name }}
+          HALT_GOOGLE_PLAY_RELEASE_JSON_FILE_PATH: ${{ steps.auth.outputs.credentials_file_path }}
+        run: bundle exec fastlane halt_release
+```
+
+```ruby
+lane :halt_release do
+  # Params are injected from HALT_GOOGLE_PLAY_RELEASE_{PACKAGE_NAME,TRACK.VERSION_NAME,JSON_FILE_PATH}
+  halt_google_play_release
+
+  # You can specify directly, by ENV[''], etc.
+  # halt_google_play_release(
+  #   package_name: ENV['YOUR_PACKAGE_NAME_ENVIRONMANE_NAME'],
+  #   version_name: "1.0.0",
+  #   ...
+  #)
 end
 ```
 
