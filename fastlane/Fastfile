@@ -1,0 +1,28 @@
+lane :halt_release do
+  halt_google_play_release(
+    package_name: "com.example.app",
+    track: "production",
+    version_name: "1.0.0",
+    json_file_path: "path/to/service-account.json"
+  )
+end
+
+lane :resume_release do
+  resume_google_play_release(
+    package_name: "com.example.app",
+    track: "production",
+    version_name: "1.0.0",
+    json_file_path: "path/to/external-account.json"
+  )
+end
+
+lane :update_rollout do
+  update_google_play_release_rollout(
+    package_name: "com.example.app",
+    track: "production",
+    version_name: "1.0.0",
+    user_fraction: 0.5,
+    json_file_path: "path/to/service-account.json"
+  )
+end
+
