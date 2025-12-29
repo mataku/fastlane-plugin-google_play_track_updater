@@ -373,7 +373,7 @@ describe Fastlane::GooglePlayTrackUpdater::GooglePlayClient do
         expect(android_publisher_service).to have_received(:update_edit_track).with(package_name, edit_id, target_track, any_args).once
         expect(android_publisher_service).to have_received(:commit_edit).with(package_name, edit_id).once
         expect(track_release).to have_received(:user_fraction=).with(user_fraction.to_f)
-        expect(Fastlane::UI).to have_received(:success).with("Successfully updated rollout to #{user_fraction} for version '#{target_version_name}' on track: #{target_track}).").once
+        expect(Fastlane::UI).to have_received(:success).with("Successfully updated rollout to #{user_fraction} for version '#{target_version_name}' on track: #{target_track}.").once
       end
     end
 

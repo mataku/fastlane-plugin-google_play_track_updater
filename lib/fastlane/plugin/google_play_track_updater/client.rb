@@ -191,7 +191,7 @@ module Fastlane
           if is_rollout_updated
             android_publisher_service.update_edit_track(package_name, edit_id, track, current_track)
             android_publisher_service.commit_edit(package_name, edit_id)
-            UI.success("Successfully updated rollout to #{user_fraction} for version '#{version_name}' on track: #{track}).")
+            UI.success("Successfully updated rollout to #{user_fraction} for version '#{version_name}' on track: #{track}.")
           else
             UI.message("No inProgress releases found to update rollout for version '#{version_name}' on track: #{track}.")
           end
