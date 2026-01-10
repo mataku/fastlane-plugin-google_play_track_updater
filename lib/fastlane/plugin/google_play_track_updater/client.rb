@@ -16,15 +16,23 @@ module Fastlane
       # @raise [FastlaneCore::Interface::FastlaneError] If neither or both authentication parameters are provided
       # @raise [FastlaneCore::Interface::FastlaneError] If the JSON type is not 'service_account' or 'external_account'
       def initialize(json_file_path: nil, json_key_data: nil)
-        if json_file_path.nil? && json_key_data.nil?
-          UI.user_error!('Specify exactly one of \'json_file_path: \' or \'json_key_data: \' for service/external account authentication.')
+        env_credentials_path = ENV.fetch('GOOGLE_APPLICATION_CREDENTIALS', nil)
+
+        if json_file_path.nil? && json_key_data.nil? && env_credentials_path.nil?
+          UI.user_error!('Specify exactly one of \'json_file_path: \' or \'json_key_data: \' for service/external account authentication, or set GOOGLE_APPLICATION_CREDENTIALS environment variable.')
         end
 
-        account_raw_json = if json_file_path
-                             File.open(File.expand_path(json_file_path))
-                           elsif json_key_data
-                             StringIO.new(json_key_data)
-                           end
+        account_raw_json = nil
+        if env_credentials_path
+          UI.message("Using credentials from GOOGLE_APPLICATION_CREDENTIALS environment variable: #{env_credentials_path}")
+          account_raw_json = File.open(File.expand_path(env_credentials_path))
+        elsif json_file_path
+          UI.message("Using credentials from json_file_path: #{json_file_path}")
+          account_raw_json = File.open(File.expand_path(json_file_path))
+        elsif json_key_data
+          UI.message("Using credentials from json_key_data")
+          account_raw_json = StringIO.new(json_key_data)
+        end
         account_json = JSON.parse(account_raw_json.read)
         account_raw_json.rewind
 

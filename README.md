@@ -34,6 +34,16 @@ By using focused actions like `halt_google_play_release`, `resume_google_play_re
 - Reduce the risk of accidentally modifying other release properties
 - Simplify your CI/CD pipelines with purpose-built commands
 
+## Authentication
+
+This plugin supports multiple authentication methods. The priority order is:
+
+1. **`GOOGLE_APPLICATION_CREDENTIALS` environment variable** (Highest priority)
+2. **`json_file_path` parameter**
+3. **`json_key_data` parameter**
+
+If `GOOGLE_APPLICATION_CREDENTIALS` is set, it will be used regardless of whether `json_file_path` or `json_key_data` are provided. This makes it convenient to use with tools like `google-github-actions/auth` which automatically sets this environment variable.
+
 ## Actions
 
 ### halt_google_play_release
@@ -59,7 +69,7 @@ halt_google_play_release(
 | `json_file_path` | `HALT_GOOGLE_PLAY_RELEASE_JSON_FILE_PATH` | Path to a file containing service account or external account JSON | No* | String |
 | `json_key_data` | `HALT_GOOGLE_PLAY_RELEASE_JSON_KEY_DATA` | Service account or external account JSON data as a string | No* | String |
 
-\* Either `json_file_path` or `json_key_data` must be provided
+\* Either `json_file_path`, `json_key_data`, or `GOOGLE_APPLICATION_CREDENTIALS` environment variable must be provided
 
 ### resume_google_play_release
 
@@ -84,7 +94,7 @@ resume_google_play_release(
 | `json_file_path` | `RESUME_GOOGLE_PLAY_RELEASE_JSON_FILE_PATH` | Path to a file containing service account or external account JSON | No* | String |
 | `json_key_data` | `RESUME_GOOGLE_PLAY_RELEASE_JSON_KEY_DATA` | Service account or external account JSON data as a string | No* | String |
 
-\* Either `json_file_path` or `json_key_data` must be provided
+\* Either `json_file_path`, `json_key_data`, or `GOOGLE_APPLICATION_CREDENTIALS` environment variable must be provided
 
 ### update_google_play_release_rollout
 
@@ -111,7 +121,7 @@ update_google_play_release_rollout(
 | `json_file_path` | `UPDATE_GOOGLE_PLAY_RELEASE_ROLLOUT_JSON_FILE_PATH` | Path to a file containing service account or external account JSON | No* | String |
 | `json_key_data` | `UPDATE_GOOGLE_PLAY_RELEASE_ROLLOUT_JSON_KEY_DATA` | Service account or external account JSON data as a string | No* | String |
 
-\* Either `json_file_path` or `json_key_data` must be provided
+\* Either `json_file_path`, `json_key_data`, or `GOOGLE_APPLICATION_CREDENTIALS` environment variable must be provided
 
 ## Example
 
@@ -186,24 +196,25 @@ jobs:
 
       - name: Halt release
         env:
-          # You can also inject required params via HALT_GOOGLE_PLAY_RELEASE_{PACKAGE_NAME,TRACK.VERSION_NAME,JSON_FILE_PATH}
+          # google-github-actions/auth with create_credentials_file: true sets GOOGLE_APPLICATION_CREDENTIALS
+          # You can also inject required params via HALT_GOOGLE_PLAY_RELEASE_{PACKAGE_NAME,TRACK,VERSION_NAME}
           HALT_GOOGLE_PLAY_RELEASE_PACKAGE_NAME: com.example.app
           HALT_GOOGLE_PLAY_RELEASE_TRACK: production
           HALT_GOOGLE_PLAY_RELEASE_VERSION_NAME: ${{ inputs.version_name }}
-          HALT_GOOGLE_PLAY_RELEASE_JSON_FILE_PATH: ${{ steps.auth.outputs.credentials_file_path }}
         run: bundle exec fastlane halt_release
 ```
 
 ```ruby
 lane :halt_release do
-  # Params are injected from HALT_GOOGLE_PLAY_RELEASE_{PACKAGE_NAME,TRACK.VERSION_NAME,JSON_FILE_PATH}
+  # Params are injected from HALT_GOOGLE_PLAY_RELEASE_{PACKAGE_NAME,TRACK,VERSION_NAME}
+  # GOOGLE_APPLICATION_CREDENTIALS is set by google-github-actions/auth
   halt_google_play_release
 
-  # You can specify directly, by ENV[''], etc.
+  # You can also specify directly
   # halt_google_play_release(
-  #   package_name: ENV['YOUR_PACKAGE_NAME_ENVIRONMANE_NAME'],
+  #   package_name: ENV['YOUR_PACKAGE_NAME_ENVIRONMENT_NAME'],
   #   version_name: "1.0.0",
-  #   ...
+  #   json_file_path: "path/to/service-account.json"
   #)
 end
 ```

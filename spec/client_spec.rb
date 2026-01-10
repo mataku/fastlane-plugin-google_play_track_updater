@@ -4,7 +4,37 @@ describe Fastlane::GooglePlayTrackUpdater::GooglePlayClient do
   describe '#initialize' do
     context 'no json specified' do
       it 'should call UI.user_error!' do
-        expect { Fastlane::GooglePlayTrackUpdater::GooglePlayClient.new }.to raise_error(FastlaneCore::Interface::FastlaneError).with_message('Specify exactly one of \'json_file_path: \' or \'json_key_data: \' for service/external account authentication.')
+        expect { Fastlane::GooglePlayTrackUpdater::GooglePlayClient.new }.to raise_error(FastlaneCore::Interface::FastlaneError).with_message('Specify exactly one of \'json_file_path: \' or \'json_key_data: \' for service/external account authentication, or set GOOGLE_APPLICATION_CREDENTIALS environment variable.')
+      end
+    end
+
+    context 'GOOGLE_APPLICATION_CREDENTIALS environment variable is set' do
+      let(:file_path) { './spec/fixtures/sample_service_account.json' }
+      let(:auth_client) { double('auth_client') }
+      before do
+        ENV['GOOGLE_APPLICATION_CREDENTIALS'] = file_path
+        allow(Google::Auth::ServiceAccountCredentials).to receive(:make_creds).and_return(auth_client)
+        allow(auth_client).to receive(:fetch_access_token!)
+        allow(Fastlane::UI).to receive(:message)
+      end
+
+      after do
+        ENV.delete('GOOGLE_APPLICATION_CREDENTIALS')
+      end
+
+      it 'should use the environment variable path' do
+        client = Fastlane::GooglePlayTrackUpdater::GooglePlayClient.new
+        expect(Google::Auth::ServiceAccountCredentials).to have_received(:make_creds).once
+        expect(auth_client).to have_received(:fetch_access_token!).once
+        expect(Fastlane::UI).to have_received(:message).with("Using credentials from GOOGLE_APPLICATION_CREDENTIALS environment variable: #{file_path}")
+      end
+
+      it 'should prioritize environment variable over json_file_path' do
+        other_file_path = './spec/fixtures/sample_external_account.json'
+        client = Fastlane::GooglePlayTrackUpdater::GooglePlayClient.new(json_file_path: other_file_path)
+        expect(Google::Auth::ServiceAccountCredentials).to have_received(:make_creds).once
+        expect(auth_client).to have_received(:fetch_access_token!).once
+        expect(Fastlane::UI).to have_received(:message).with("Using credentials from GOOGLE_APPLICATION_CREDENTIALS environment variable: #{file_path}")
       end
     end
 
@@ -14,12 +44,14 @@ describe Fastlane::GooglePlayTrackUpdater::GooglePlayClient do
       before do
         allow(Google::Auth::ServiceAccountCredentials).to receive(:make_creds).and_return(auth_client)
         allow(auth_client).to receive(:fetch_access_token!)
+        allow(Fastlane::UI).to receive(:message)
       end
 
       it 'should use Google::Auth::ServiceAccountCredentials' do
         client = Fastlane::GooglePlayTrackUpdater::GooglePlayClient.new(json_file_path: file_path)
         expect(Google::Auth::ServiceAccountCredentials).to have_received(:make_creds).once
         expect(auth_client).to have_received(:fetch_access_token!).once
+        expect(Fastlane::UI).to have_received(:message).with("Using credentials from json_file_path: #{file_path}")
       end
     end
 
@@ -29,12 +61,14 @@ describe Fastlane::GooglePlayTrackUpdater::GooglePlayClient do
       before do
         allow(Google::Auth::ExternalAccount::Credentials).to receive(:make_creds).and_return(auth_client)
         allow(auth_client).to receive(:fetch_access_token!)
+        allow(Fastlane::UI).to receive(:message)
       end
 
       it 'should use Google::Auth::ExternalAccount::Credentials' do
         client = Fastlane::GooglePlayTrackUpdater::GooglePlayClient.new(json_file_path: file_path)
         expect(Google::Auth::ExternalAccount::Credentials).to have_received(:make_creds).once
         expect(auth_client).to have_received(:fetch_access_token!).once
+        expect(Fastlane::UI).to have_received(:message).with("Using credentials from json_file_path: #{file_path}")
       end
     end
   end
@@ -126,7 +160,8 @@ describe Fastlane::GooglePlayTrackUpdater::GooglePlayClient do
         client.halt_release(package_name: package_name, track: target_track, version_name: target_version_name)
         expect(android_publisher_service).to have_received(:update_edit_track).with(package_name, edit_id, target_track, any_args).once
         expect(android_publisher_service).to have_received(:commit_edit).with(package_name, edit_id).once
-        expect(Fastlane::UI).to have_received(:message).once
+        expect(Fastlane::UI).to have_received(:message).with("Using credentials from json_file_path: #{file_path}").once
+        expect(Fastlane::UI).to have_received(:message).with("Preparing to halt release for version '#{target_version_name}' on track: #{target_track}...").once
         expect(Fastlane::UI).to have_received(:success).once
       end
     end
@@ -145,7 +180,8 @@ describe Fastlane::GooglePlayTrackUpdater::GooglePlayClient do
         client.halt_release(package_name: package_name, track: target_track, version_name: target_version_name)
         expect(android_publisher_service).to have_received(:update_edit_track).with(package_name, edit_id, target_track, any_args).once
         expect(android_publisher_service).to have_received(:commit_edit).with(package_name, edit_id).once
-        expect(Fastlane::UI).to have_received(:message).once
+        expect(Fastlane::UI).to have_received(:message).with("Using credentials from json_file_path: #{file_path}").once
+        expect(Fastlane::UI).to have_received(:message).with("Preparing to halt release for version '#{target_version_name}' on track: #{target_track}...").once
         expect(Fastlane::UI).to have_received(:success).once
       end
     end
@@ -240,7 +276,8 @@ describe Fastlane::GooglePlayTrackUpdater::GooglePlayClient do
         expect(android_publisher_service).to have_received(:update_edit_track).with(package_name, edit_id, target_track, any_args).once
         expect(android_publisher_service).to have_received(:commit_edit).with(package_name, edit_id).once
         expect(track_release).to have_received(:status=).with('inProgress')
-        expect(Fastlane::UI).to have_received(:message).once
+        expect(Fastlane::UI).to have_received(:message).with("Using credentials from json_file_path: #{file_path}").once
+        expect(Fastlane::UI).to have_received(:message).with("Preparing to resume release for version '#{target_version_name}' on track: #{target_track}...").once
         expect(Fastlane::UI).to have_received(:success).once
       end
     end
@@ -261,7 +298,8 @@ describe Fastlane::GooglePlayTrackUpdater::GooglePlayClient do
         expect(android_publisher_service).to have_received(:update_edit_track).with(package_name, edit_id, target_track, any_args).once
         expect(android_publisher_service).to have_received(:commit_edit).with(package_name, edit_id).once
         expect(track_release).to have_received(:status=).with('completed')
-        expect(Fastlane::UI).to have_received(:message).once
+        expect(Fastlane::UI).to have_received(:message).with("Using credentials from json_file_path: #{file_path}").once
+        expect(Fastlane::UI).to have_received(:message).with("Preparing to resume release for version '#{target_version_name}' on track: #{target_track}...").once
         expect(Fastlane::UI).to have_received(:success).once
       end
     end
