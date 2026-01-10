@@ -18,10 +18,5 @@ gem 'rubocop'
 gem 'rubocop-performance'
 # A RuboCop extension focused on enforcing tools.
 gem 'rubocop-require_tools'
-# SimpleCov is a code coverage analysis tool for Ruby.
-gem 'simplecov'
 
 gemspec
-
-plugins_path = File.join(File.dirname(__FILE__), 'fastlane', 'Pluginfile')
-eval_gemfile(plugins_path) if File.exist?(plugins_path)
