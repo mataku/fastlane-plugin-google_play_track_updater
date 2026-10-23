@@ -30,7 +30,7 @@ module Fastlane
           UI.message("Using credentials from json_file_path: #{json_file_path}")
           account_raw_json = File.open(File.expand_path(json_file_path))
         elsif json_key_data
-          UI.message("Using credentials from json_key_data")
+          UI.message('Using credentials from json_key_data')
           account_raw_json = StringIO.new(json_key_data)
         end
         account_json = JSON.parse(account_raw_json.read)
@@ -145,10 +145,10 @@ module Fastlane
             android_publisher_service.update_edit_track(package_name, edit_id, track, current_track)
             android_publisher_service.commit_edit(package_name, edit_id)
             changed_release = if in_progress_changed
-                                'inProgress'
-                              elsif completed_changed
-                                'completed'
-                              end
+              'inProgress'
+            elsif completed_changed
+              'completed'
+            end
             UI.success("Successfully changed status to #{changed_release || 'completed'} for version '#{version_name}' on track: #{track}.")
           else
             UI.message("No halted releases found for version '#{version_name}' on track: #{track}.")

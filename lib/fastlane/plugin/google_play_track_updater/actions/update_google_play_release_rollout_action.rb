@@ -28,7 +28,7 @@ module Fastlane
       end
 
       def self.authors
-        ["Takuma Homma"]
+        ['Takuma Homma']
       end
 
       def self.return_value
@@ -42,35 +42,35 @@ module Fastlane
       def self.available_options
         [
           FastlaneCore::ConfigItem.new(key: :package_name,
-                                       env_name: 'UPDATE_GOOGLE_PLAY_RELEASE_ROLLOUT_PACKAGE_NAME',
-                                       description: 'The package name of the application. e.g. \'com.example.app\'',
-                                       optional: false,
-                                       type: String),
+            env_name: 'UPDATE_GOOGLE_PLAY_RELEASE_ROLLOUT_PACKAGE_NAME',
+            description: 'The package name of the application. e.g. \'com.example.app\'',
+            optional: false,
+            type: String),
           FastlaneCore::ConfigItem.new(key: :track,
-                                       env_name: "UPDATE_GOOGLE_PLAY_RELEASE_ROLLOUT_TRACK",
-                                       description: 'The track of the application. The available tracks are: production, beta, alpha, internal',
-                                       optional: false,
-                                       type: String),
+            env_name: 'UPDATE_GOOGLE_PLAY_RELEASE_ROLLOUT_TRACK',
+            description: 'The track of the application. The available tracks are: production, beta, alpha, internal',
+            optional: false,
+            type: String),
           FastlaneCore::ConfigItem.new(key: :version_name,
-                                       env_name: 'UPDATE_GOOGLE_PLAY_RELEASE_ROLLOUT_VERSION_NAME',
-                                       description: 'The version name to update. e.g. \'1.0.0\'',
-                                       optional: false,
-                                       type: String),
+            env_name: 'UPDATE_GOOGLE_PLAY_RELEASE_ROLLOUT_VERSION_NAME',
+            description: 'The version name to update. e.g. \'1.0.0\'',
+            optional: false,
+            type: String),
           FastlaneCore::ConfigItem.new(key: :user_fraction,
-                                       env_name: 'UPDATE_GOOGLE_PLAY_RELEASE_ROLLOUT_USER_FRACTION',
-                                       description: 'The rollout percentage as a fraction (0.0 to 1.0, exclusive). e.g. 0.1 for 10% rollout',
-                                       optional: false,
-                                       type: Float),
+            env_name: 'UPDATE_GOOGLE_PLAY_RELEASE_ROLLOUT_USER_FRACTION',
+            description: 'The rollout percentage as a fraction (0.0 to 1.0, exclusive). e.g. 0.1 for 10% rollout',
+            optional: false,
+            type: Float),
           FastlaneCore::ConfigItem.new(key: :json_file_path,
-                                       env_name: 'UPDATE_GOOGLE_PLAY_RELEASE_ROLLOUT_JSON_FILE_PATH',
-                                       description: 'The path to a file containing service account or external account JSON, used to authenticate with Google',
-                                       optional: true,
-                                       type: String),
+            env_name: 'UPDATE_GOOGLE_PLAY_RELEASE_ROLLOUT_JSON_FILE_PATH',
+            description: 'The path to a file containing service account or external account JSON, used to authenticate with Google',
+            optional: true,
+            type: String),
           FastlaneCore::ConfigItem.new(key: :json_key_data,
-                                       env_name: 'UPDATE_GOOGLE_PLAY_RELEASE_ROLLOUT_JSON_KEY_DATA',
-                                       description: 'The file data containing service account or external account JSON, used to authenticate with Google',
-                                       optional: true,
-                                       type: String)
+            env_name: 'UPDATE_GOOGLE_PLAY_RELEASE_ROLLOUT_JSON_KEY_DATA',
+            description: 'The file data containing service account or external account JSON, used to authenticate with Google',
+            optional: true,
+            type: String)
 
         ]
       end

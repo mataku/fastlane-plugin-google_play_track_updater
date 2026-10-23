@@ -94,7 +94,7 @@ describe Fastlane::GooglePlayTrackUpdater::GooglePlayClient do
     let(:target_version_name) { '1.0.0' }
     let(:target_track) { 'internal' }
     let(:package_name) { 'com.mataku.app' }
-    let(:edit_id) { "1011010" }
+    let(:edit_id) { '1011010' }
 
     before do
       allow(Google::Auth::ExternalAccount::Credentials).to receive(:make_creds).and_return(auth_client)
@@ -208,7 +208,7 @@ describe Fastlane::GooglePlayTrackUpdater::GooglePlayClient do
     let(:target_version_name) { '1.0.0' }
     let(:target_track) { 'internal' }
     let(:package_name) { 'com.mataku.app' }
-    let(:edit_id) { "1011010" }
+    let(:edit_id) { '1011010' }
 
     before do
       allow(Google::Auth::ExternalAccount::Credentials).to receive(:make_creds).and_return(auth_client)
@@ -339,7 +339,7 @@ describe Fastlane::GooglePlayTrackUpdater::GooglePlayClient do
     let(:target_version_name) { '1.0.0' }
     let(:target_track) { 'internal' }
     let(:package_name) { 'com.mataku.app' }
-    let(:edit_id) { "1011010" }
+    let(:edit_id) { '1011010' }
 
     before do
       allow(Google::Auth::ExternalAccount::Credentials).to receive(:make_creds).and_return(auth_client)
