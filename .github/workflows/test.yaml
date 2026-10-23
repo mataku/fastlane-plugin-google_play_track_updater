@@ -1,7 +1,10 @@
 name: Test
 
 on:
+  pull_request:
   push:
+    branches:
+      - develop
 
 jobs:
   test:
@@ -9,21 +12,35 @@ jobs:
     strategy:
       matrix:
         ruby:
-          - '2.7'
-          - '3.4'
+          - '3.2'
+          - '4.0'
     steps:
     - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
-    - uses: actions/cache@9255dc7a253b0ccc959486e2bca901246202afeb # v5.0.1
-      with:
-        path: vendor/bundle
-        key: ${{ runner.os }}-gem-${{ hashFiles('**/Gemfile') }}
-        restore-keys: |
-          ${{ runner.os }}-gem-
     - name: Set up Ruby
       uses: ruby/setup-ruby@ae195bbe749a7cef685ac729197124a48305c1cb # v1.276.0
       with:
         ruby-version: ${{ matrix.ruby }}
+    - name: Resolve dependencies
+      id: resolve
+      run: |
+        bundle config set --local path vendor/bundle
+        bundle lock
+        echo "ruby-version=$(ruby -e 'print RUBY_VERSION')" >> "$GITHUB_OUTPUT"
+    - name: Restore gem cache
+      id: gem-cache
+      uses: actions/cache/restore@9255dc7a253b0ccc959486e2bca901246202afeb # v5.0.1
+      with:
+        path: vendor/bundle
+        key: ${{ runner.os }}-ruby-${{ steps.resolve.outputs.ruby-version }}-gems-${{ hashFiles('Gemfile.lock') }}
+        restore-keys: |
+          ${{ runner.os }}-ruby-${{ steps.resolve.outputs.ruby-version }}-gems-
     - name: Install dependencies
-      run: bundle check || bundle install --jobs=4 --retry=3 --path vendor/bundle
+      run: bundle install --jobs=4 --retry=3
+    - name: Save gem cache
+      if: github.ref == 'refs/heads/develop' && steps.gem-cache.outputs.cache-hit != 'true'
+      uses: actions/cache/save@9255dc7a253b0ccc959486e2bca901246202afeb # v5.0.1
+      with:
+        path: vendor/bundle
+        key: ${{ steps.gem-cache.outputs.cache-primary-key }}
     - name: Run tests
       run: bundle exec rake
